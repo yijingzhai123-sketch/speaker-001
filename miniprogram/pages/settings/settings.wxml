@@ -1,0 +1,100 @@
+<!-- 设置页面 -->
+<view class="settings-container">
+  <view class="card profile-card">
+    <view class="profile-header">
+      <view class="profile-avatar">{{userInfo.nickname ? userInfo.nickname.charAt(0) : '👦'}}</view>
+      <view class="profile-info">
+        <text class="profile-name">{{userInfo.nickname || '未设置'}}</text>
+        <text class="profile-age">{{userInfo.age ? userInfo.age + '岁' : ''}} · Lv.{{difficultyLevel}}</text>
+      </view>
+      <view class="edit-btn" bindtap="onEditProfile">编辑</view>
+    </view>
+  </view>
+  <view class="section-title">对话伙伴设置</view>
+  <view class="card">
+    <view class="setting-item" bindtap="onChangePartner">
+      <view class="setting-left"><text class="setting-icon">{{aiPartner.emoji}}</text><view class="setting-info"><text class="setting-label">对话伙伴</text><text class="setting-value">{{aiPartner.identityName}}</text></view></view>
+      <text class="setting-arrow">›</text>
+    </view>
+    <view class="setting-divider"></view>
+    <view class="setting-item" bindtap="onChangeTone">
+      <view class="setting-left"><text class="setting-icon">🎭</text><view class="setting-info"><text class="setting-label">语气风格</text><text class="setting-value">{{aiPartner.toneName}}</text></view></view>
+      <text class="setting-arrow">›</text>
+    </view>
+    <view class="setting-divider"></view>
+    <view class="setting-item" bindtap="onChangeAge">
+      <view class="setting-left"><text class="setting-icon">🎂</text><view class="setting-info"><text class="setting-label">年龄设置</text><text class="setting-value">{{userInfo.age}}岁 → 难度 Lv.{{difficultyLevel}}</text></view></view>
+      <text class="setting-arrow">›</text>
+    </view>
+  </view>
+  <view class="card difficulty-card">
+    <text class="card-title">📊 难度等级说明</text>
+    <view class="difficulty-list">
+      <view class="diff-item {{difficultyLevel === 1 ? 'active' : ''}}"><text class="diff-badge">Lv.1</text><text class="diff-desc">3-5岁 · 简单单词和短句 · 以趣味引导为主</text></view>
+      <view class="diff-item {{difficultyLevel === 2 ? 'active' : ''}}"><text class="diff-badge">Lv.2</text><text class="diff-desc">6-8岁 · 基础日常对话 · 鼓励完整句子表达</text></view>
+      <view class="diff-item {{difficultyLevel === 3 ? 'active' : ''}}"><text class="diff-badge">Lv.3</text><text class="diff-desc">9-10岁 · 中等难度对话 · 加入简单语法纠正</text></view>
+      <view class="diff-item {{difficultyLevel === 4 ? 'active' : ''}}"><text class="diff-badge">Lv.4</text><text class="diff-desc">11-12岁 · 进阶对话 · 话题讨论和观点表达</text></view>
+    </view>
+  </view>
+  <view class="section-title">通用设置</view>
+  <view class="card">
+    <view class="setting-item" bindtap="onClearHistory">
+      <view class="setting-left"><text class="setting-icon">🗑️</text><view class="setting-info"><text class="setting-label">清空对话记录</text><text class="setting-value">清除所有聊天历史</text></view></view>
+      <text class="setting-arrow">›</text>
+    </view>
+    <view class="setting-divider"></view>
+    <view class="setting-item">
+      <view class="setting-left"><text class="setting-icon">🔊</text><view class="setting-info"><text class="setting-label">语音播放</text><text class="setting-value">AI回复自动朗读</text></view></view>
+      <switch checked="{{autoPlay}}" bindchange="onAutoPlayChange" color="#4A90D9" />
+    </view>
+  </view>
+  <view class="section-title">关于</view>
+  <view class="card about-card">
+    <view class="about-item"><text class="about-label">版本</text><text class="about-value">1.0.0</text></view>
+    <view class="about-item"><text class="about-label">AI模型</text><text class="about-value">DeepSeek V4</text></view>
+    <view class="about-item"><text class="about-label">技术栈</text><text class="about-value">微信小程序 + Node.js</text></view>
+  </view>
+  <view class="reset-section"><button class="btn-secondary reset-btn" bindtap="onResetAll">重置所有设置</button></view>
+</view>
+<view class="modal-mask" wx:if="{{showNicknameModal}}" bindtap="onCloseModal">
+  <view class="modal-content" catchtap="">
+    <text class="modal-title">修改昵称</text>
+    <input class="input-field modal-input" placeholder="输入新的昵称" value="{{editNickname}}" bindinput="onEditNickname" maxlength="20" />
+    <view class="modal-actions"><button class="btn-secondary modal-btn" bindtap="onCloseModal">取消</button><button class="btn-primary modal-btn" bindtap="onSaveNickname">保存</button></view>
+  </view>
+</view>
+<view class="modal-mask" wx:if="{{showAgeModal}}" bindtap="onCloseModal">
+  <view class="modal-content" catchtap="">
+    <text class="modal-title">修改年龄</text>
+    <view class="age-picker">
+      <view class="age-option {{userInfo.age === item ? 'active' : ''}}" wx:for="{{ageOptions}}" wx:key="*this" data-age="{{item}}" bindtap="onSelectAge">{{item}}岁</view>
+    </view>
+    <view class="modal-actions"><button class="btn-secondary modal-btn" bindtap="onCloseModal">取消</button><button class="btn-primary modal-btn" bindtap="onSaveAge">保存</button></view>
+  </view>
+</view>
+<view class="modal-mask" wx:if="{{showPartnerModal}}" bindtap="onCloseModal">
+  <view class="modal-content" catchtap="">
+    <text class="modal-title">选择对话伙伴</text>
+    <view class="partner-options">
+      <view class="partner-option {{aiPartner.identity === item.id ? 'selected' : ''}}" wx:for="{{partnerOptions}}" wx:key="id" data-id="{{item.id}}" data-name="{{item.name}}" data-emoji="{{item.emoji}}" bindtap="onSelectPartner">
+        <text class="partner-option-emoji">{{item.emoji}}</text>
+        <view class="partner-option-info"><text class="partner-option-name">{{item.name}}</text><text class="partner-option-desc">{{item.desc}}</text></view>
+        <text class="partner-check" wx:if="{{aiPartner.identity === item.id}}">✓</text>
+      </view>
+    </view>
+    <view class="modal-actions"><button class="btn-secondary modal-btn" bindtap="onCloseModal">取消</button><button class="btn-primary modal-btn" bindtap="onSavePartner">保存</button></view>
+  </view>
+</view>
+<view class="modal-mask" wx:if="{{showToneModal}}" bindtap="onCloseModal">
+  <view class="modal-content" catchtap="">
+    <text class="modal-title">选择语气风格</text>
+    <view class="tone-options">
+      <view class="tone-option {{aiPartner.tone === item.id ? 'selected' : ''}}" wx:for="{{toneOptions}}" wx:key="id" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onSelectTone">
+        <text class="tone-option-emoji">{{item.emoji}}</text>
+        <view class="tone-option-info"><text class="tone-option-name">{{item.name}}</text><text class="tone-option-desc">{{item.desc}}</text></view>
+        <text class="partner-check" wx:if="{{aiPartner.tone === item.id}}">✓</text>
+      </view>
+    </view>
+    <view class="modal-actions"><button class="btn-secondary modal-btn" bindtap="onCloseModal">取消</button><button class="btn-primary modal-btn" bindtap="onSaveTone">保存</button></view>
+  </view>
+</view>
