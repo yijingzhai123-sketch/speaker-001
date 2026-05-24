@@ -1,0 +1,76 @@
+<!-- 首页 - 引导设置 -->
+<view class="page-container">
+  <view class="hero-section">
+    <view class="hero-icon">🦉</view>
+    <text class="hero-title">KidsTalk</text>
+    <text class="hero-subtitle">少儿英语口语学习伙伴</text>
+  </view>
+  <view class="setup-section" wx:if="{{!isSetup}}">
+    <view class="card">
+      <text class="card-title">🎯 让我们开始吧</text>
+      <text class="card-desc">告诉我一些关于你的信息，我会为你匹配合适的对话伙伴和难度。</text>
+    </view>
+    <view class="card">
+      <view class="step-badge">1</view>
+      <text class="step-title">基本信息</text>
+      <view class="form-group">
+        <text class="form-label">你的昵称</text>
+        <input class="input-field" placeholder="输入你的名字" value="{{nickname}}" bindinput="onNicknameInput" maxlength="20" />
+      </view>
+      <view class="form-group">
+        <text class="form-label">你的年龄</text>
+        <view class="age-selector">
+          <view class="age-btn {{age === item ? 'active' : ''}}" wx:for="{{ageOptions}}" wx:key="*this" data-age="{{item}}" bindtap="onAgeSelect">{{item}}岁</view>
+        </view>
+      </view>
+    </view>
+    <view class="card">
+      <view class="step-badge">2</view>
+      <text class="step-title">选择对话伙伴</text>
+      <text class="form-label">你想和谁练习口语？</text>
+      <view class="partner-list">
+        <view class="partner-item {{aiPartner.identity === item.id ? 'selected' : ''}}" wx:for="{{partnerOptions}}" wx:key="id" data-id="{{item.id}}" data-name="{{item.name}}" data-emoji="{{item.emoji}}" bindtap="onPartnerSelect">
+          <text class="partner-emoji">{{item.emoji}}</text>
+          <text class="partner-name">{{item.name}}</text>
+          <text class="partner-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="card">
+      <view class="step-badge">3</view>
+      <text class="step-title">选择语气风格</text>
+      <text class="form-label">你希望对话伙伴是什么样的？</text>
+      <view class="tone-list">
+        <view class="tone-item {{aiPartner.tone === item.id ? 'selected' : ''}}" wx:for="{{toneOptions}}" wx:key="id" data-id="{{item.id}}" data-name="{{item.name}}" data-emoji="{{item.emoji}}" bindtap="onToneSelect">
+          <text class="tone-emoji">{{item.emoji}}</text>
+          <view class="tone-info">
+            <text class="tone-name">{{item.name}}</text>
+            <text class="tone-desc">{{item.desc}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <button class="btn-primary start-btn" bindtap="onStart" disabled="{{!canStart}}">🚀 开始对话</button>
+  </view>
+  <view class="home-section" wx:else>
+    <view class="card welcome-card">
+      <text class="welcome-emoji">{{aiPartner.emoji}}</text>
+      <text class="welcome-text">Hi {{userInfo.nickname}}!</text>
+      <text class="welcome-desc">你的{{aiPartner.identityName}}已准备好和你练习口语啦~</text>
+    </view>
+    <view class="info-grid">
+      <view class="info-card"><text class="info-icon">👤</text><text class="info-value">{{userInfo.nickname}}</text><text class="info-label">名字</text></view>
+      <view class="info-card"><text class="info-icon">🎂</text><text class="info-value">{{userInfo.age}}岁</text><text class="info-label">年龄</text></view>
+      <view class="info-card"><text class="info-icon">{{aiPartner.emoji}}</text><text class="info-value">{{aiPartner.identityName}}</text><text class="info-label">伙伴</text></view>
+      <view class="info-card"><text class="info-icon">💬</text><text class="info-value">{{aiPartner.toneName}}</text><text class="info-label">风格</text></view>
+    </view>
+    <view class="card topics-card">
+      <view class="topics-header"><text class="card-title">💡 今天聊什么？</text><text class="refresh-btn" bindtap="onRefreshTopics">换一批</text></view>
+      <view class="topic-list">
+        <view class="topic-item fade-in" wx:for="{{topics}}" wx:key="*this" bindtap="onTopicTap" data-topic="{{item}}"><text class="topic-text">{{item}}</text></view>
+      </view>
+      <view wx:if="{{topics.length === 0}}" class="empty-topics"><text>点击上方按钮获取话题推荐~</text></view>
+    </view>
+    <button class="btn-primary start-btn" bindtap="onGoChat">💬 开始练习</button>
+  </view>
+</view>
