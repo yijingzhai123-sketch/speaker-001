@@ -1,0 +1,68 @@
+<!-- 对话页面 -->
+<view class="chat-container">
+  <view class="chat-header" wx:if="{{aiPartner.identity}}">
+    <view class="partner-badge">
+      <text class="partner-emoji">{{aiPartner.emoji}}</text>
+      <view class="partner-info">
+        <text class="partner-name-text">{{aiPartner.identityName}}</text>
+        <text class="partner-tone">{{aiPartner.toneName}}</text>
+      </view>
+    </view>
+    <text class="level-badge">Lv.{{difficultyLevel}}</text>
+  </view>
+  <scroll-view class="chat-list" scroll-y scroll-into-view="{{scrollToView}}" scroll-with-animation enhanced show-scrollbar="{{false}}">
+    <view class="empty-chat" wx:if="{{messages.length === 0}}">
+      <text class="empty-emoji">👋</text>
+      <text class="empty-title">开始你的口语练习吧！</text>
+      <text class="empty-desc">你可以打字输入，也可以按住说话</text>
+      <view class="topic-suggestions">
+        <text class="topic-label">💡 试试这些话题：</text>
+        <view class="topic-chip" wx:for="{{suggestedTopics}}" wx:key="*this" bindtap="onTopicChipTap" data-topic="{{item}}">{{item}}</view>
+      </view>
+    </view>
+    <view class="message-item {{item.role === 'user' ? 'message-user' : 'message-ai'}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}" wx:if="{{messages.length > 0}}">
+      <view class="msg-wrapper" wx:if="{{item.role === 'assistant'}}">
+        <view class="msg-avatar msg-avatar-ai">{{aiPartner.emoji || '🦉'}}</view>
+        <view class="msg-content msg-content-ai">
+          <text class="msg-text" selectable>{{item.content}}</text>
+          <view class="msg-actions" wx:if="{{item.content}}">
+            <text class="action-btn" bindtap="onPlayTTS" data-text="{{item.content}}">🔊</text>
+            <text class="action-btn" bindtap="onCopyText" data-text="{{item.content}}">📋</text>
+          </view>
+        </view>
+      </view>
+      <view class="msg-wrapper msg-wrapper-user" wx:if="{{item.role === 'user'}}">
+        <view class="msg-content msg-content-user"><text class="msg-text">{{item.content}}</text></view>
+        <view class="msg-avatar msg-avatar-user">{{userInfo.nickname ? userInfo.nickname.charAt(0) : '👦'}}</view>
+      </view>
+    </view>
+    <view class="message-item message-ai" wx:if="{{isTyping}}">
+      <view class="msg-wrapper">
+        <view class="msg-avatar msg-avatar-ai">{{aiPartner.emoji || '🦉'}}</view>
+        <view class="msg-content msg-content-ai typing-indicator">
+          <view class="loading-dots"><view></view><view></view><view></view></view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="input-bar safe-bottom">
+    <view class="voice-mode" wx:if="{{isVoiceMode}}">
+      <view class="voice-btn cancel-btn" bindtap="onSwitchToText"><text>⌨️</text></view>
+      <view class="voice-hold-btn {{isRecording ? 'recording' : ''}}" bindtouchstart="onVoiceStart" bindtouchend="onVoiceEnd" bindtouchcancel="onVoiceCancel"><text>{{isRecording ? '松开发送' : '按住说话'}}</text></view>
+      <view class="voice-btn" bindtap="onClearChat"><text>🗑️</text></view>
+    </view>
+    <view class="text-mode" wx:else>
+      <view class="input-left">
+        <view class="mode-switch" bindtap="onSwitchToVoice"><text>🎤</text></view>
+        <input class="text-input" placeholder="输入你想说的话..." value="{{inputText}}" bindinput="onInputChange" bindconfirm="onSendText" confirm-type="send" adjust-position="{{true}}" maxlength="500" />
+      </view>
+      <view class="send-btn {{inputText ? 'active' : ''}}" bindtap="onSendText"><text>发送</text></view>
+    </view>
+  </view>
+  <view class="recording-overlay" wx:if="{{isRecording}}">
+    <view class="recording-wave">
+      <view class="wave-bar" wx:for="{{[1,2,3,4,5,6,7]}}" wx:key="*this" style="animation-delay: {{item * 0.1}}s; height: {{20 + item * 6}}rpx;"></view>
+    </view>
+    <text class="recording-hint">正在聆听...</text>
+  </view>
+</view>
